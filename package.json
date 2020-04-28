@@ -1,0 +1,36 @@
+{
+  "name": "sheepfinder-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run webserver",
+    "webserver": "nodemon src/index.js --exec babel-node",
+    "build": "babel src -d dist",
+    "serve": "node dist/index.js",
+    "eslint:fix": "eslint --fix ./src/*"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.9.5",
+    "babel-eslint": "^10.1.0",
+    "babel-plugin-module-resolver": "^4.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-import-resolver-babel-module": "^5.1.2",
+    "eslint-plugin-import": "^2.20.2",
+    "nodemon": "^2.0.3"
+  },
+  "dependencies": {
+    "@koa/router": "^8.0.8",
+    "axios": "^0.19.2",
+    "geolib": "^3.2.1",
+    "koa": "^2.11.0",
+    "koa-bodyparser": "^4.3.0",
+    "utm-latlng": "git+https://github.com/jowies/utm-latlng.git"
+  }
+}
