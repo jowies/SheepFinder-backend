@@ -1,7 +1,8 @@
 import Koa from 'koa';
 import Router from '@koa/router';
 import bodyParser from 'koa-bodyparser';
-import { geoToCoord } from './utm';
+import axios from 'axios';
+import { geoToCoord, coordToGeo } from './utm';
 import allCoordinatesFromPath from './path';
 
 
@@ -13,19 +14,29 @@ const currentPath = {
 
 };
 
-const postPath = async (ctx) => {
-  const { coordinates, width } = ctx.request.body;
+const nicePrintForTest = (result) => {
+  result.map((res) => console.log(`[${res.lat},${res.lng}]`));
+};
+
+const toLongitudeLatitude = (geo) => geo.map((g) => ({ latitude: g.lat, longitude: g.lng }));
+
+const postPath = async (coordinates, width) => {
   const utm = geoToCoord(coordinates);
   currentPath.calculated = false;
   // Request
-  // const coveragePath = await python(utm, width);
-  const calculatedPath = await allCoordinatesFromPath({ path: coordinates, precision: 20, maxiumumHeightDifference: 10 });
+  const coveragePath = await axios.post('http://localhost:5000', {
+    path: utm,
+    width,
+  }).then((res) => res.data).catch((err) => console.log(err));
+  const latlng = toLongitudeLatitude(coordToGeo(coveragePath.path));
+  const calculatedPath = await allCoordinatesFromPath({ path: latlng, precision: 20, maxiumumHeightDifference: 10 });
   currentPath.calculated = true;
   currentPath.path = calculatedPath;
 };
 
 router.post('/path', async (ctx) => {
-  postPath();
+  const { coordinates, width } = ctx.request.body;
+  postPath(coordinates, width);
   ctx.body = {
     message: 'success',
   };
@@ -46,4 +57,4 @@ router.get('/path', async (ctx) => {
 
 app.use(router.routes(), router.allowedMethods());
 
-app.listen(3000);
+app.listen(3020);

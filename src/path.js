@@ -12,6 +12,7 @@ const calculateIntermediatePoints = ({
   for (let step = precision * 2; step < distance; step += precision) {
     points.push(computeDestinationPoint(startCoordinate, step, initialBearing));
   }
+  console.log(points);
   return points;
 };
 
@@ -47,7 +48,6 @@ const coordinatesBetweenPoints = async ({ coordinates, precision, maxiumumHeight
   const intermediatePoints = intermediatePointsFromCoordinates({ coordinates, precision });
   const allPoints = [...[coordinate1], ...intermediatePoints, ...[coordinate2]];
   const allPointsWithAltitude = await altitudesFromPoints(allPoints);
-
   const necessaryCoordinates = removeUnnecessaryPoints({
     coordinates: allPointsWithAltitude,
     maxiumumHeightDifference,
