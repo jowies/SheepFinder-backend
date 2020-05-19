@@ -4,7 +4,7 @@ import bodyParser from 'koa-bodyparser';
 import axios from 'axios';
 import { geoToCoord, coordToGeo } from './utm';
 import allCoordinatesFromPath from './path';
-
+import getFov from './fov';
 
 const app = new Koa();
 app.use(bodyParser());
@@ -20,13 +20,13 @@ const nicePrintForTest = (result) => {
 
 const toLongitudeLatitude = (geo) => geo.map((g) => ({ latitude: g.lat, longitude: g.lng }));
 
-const postPath = async (coordinates, width) => {
+const postPath = async (coordinates, height) => {
   const utm = geoToCoord(coordinates);
   currentPath.calculated = false;
   // Request
   const coveragePath = await axios.post('http://localhost:5000', {
     path: utm,
-    width,
+    width: getFov(height).visual.horizontal,
   }).then((res) => res.data).catch((err) => console.log(err));
   const latlng = toLongitudeLatitude(coordToGeo(coveragePath.path));
   const calculatedPath = await allCoordinatesFromPath({ path: latlng, precision: 20, maxiumumHeightDifference: 10 });
@@ -35,8 +35,8 @@ const postPath = async (coordinates, width) => {
 };
 
 router.post('/path', async (ctx) => {
-  const { coordinates, width } = ctx.request.body;
-  postPath(coordinates, width);
+  const { coordinates, width, height } = ctx.request.body;
+  postPath(coordinates, height || width);
   ctx.body = {
     message: 'success',
   };

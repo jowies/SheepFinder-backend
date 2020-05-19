@@ -26,4 +26,4 @@ const getFov = (height) => ({
   },
 });
 
-console.log(getFov(100));
+export default getFov;
