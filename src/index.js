@@ -42,6 +42,7 @@ const postPath = async (coordinates, height, start) => {
   });
   currentPath.calculated = true;
   currentPath.path = calculatedPath;
+  currentPath.length = Math.floor(getFov(height).visual.vertical);
 };
 
 router.post('/path', async (ctx) => {
@@ -59,6 +60,7 @@ router.get('/path', async (ctx) => {
   if (currentPath.calculated) {
     ctx.body = {
       path: currentPath.path,
+      length: currentPath.length,
     };
   } else {
     ctx.body = {
