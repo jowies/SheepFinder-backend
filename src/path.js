@@ -12,7 +12,6 @@ const calculateIntermediatePoints = ({
   for (let step = precision * 2; step < distance; step += precision) {
     points.push(computeDestinationPoint(startCoordinate, step, initialBearing));
   }
-  console.log(points);
   return points;
 };
 
@@ -55,18 +54,39 @@ const coordinatesBetweenPoints = async ({ coordinates, precision, maxiumumHeight
   return necessaryCoordinates;
 };
 
-const allCoordinatesFromPath = async ({ path, precision = 20, maxiumumHeightDifference = 10 }) => {
+const allCoordinatesFromPath = async ({
+  path, precision = 20, maxiumumHeightDifference = 10, height,
+}) => {
   let pathWithAltitudes = [];
+  const promises = [];
+  console.log(path);
   for (let index = 0; index < path.length - 1; index += 1) {
-    const coordinates = await coordinatesBetweenPoints({ coordinates: [path[index], path[index + 1]], precision, maxiumumHeightDifference });
+    promises[index] = coordinatesBetweenPoints({
+      coordinates: [path[index],
+        path[index + 1]],
+      precision,
+      maxiumumHeightDifference,
+    });
+  }
+  console.log(promises);
+  const coordinates = await Promise.all(promises);
+  console.log(coordinates);
+  for (let index = 0; index < path.length - 1; index += 1) {
     if (index === 0) {
-      pathWithAltitudes = pathWithAltitudes.concat(coordinates);
+      pathWithAltitudes = pathWithAltitudes.concat(coordinates[index]);
     } else {
-      coordinates.splice(0, 1);
-      pathWithAltitudes = pathWithAltitudes.concat(coordinates);
+      const splicable = [...coordinates[index]];
+      splicable.splice(0, 1);
+      pathWithAltitudes = pathWithAltitudes.concat(splicable);
     }
   }
-  return pathWithAltitudes;
+
+
+  const homeAltitude = pathWithAltitudes[0].altitude;
+  return pathWithAltitudes.map((point) => ({
+    ...point,
+    altitude: (point.altitude - homeAltitude + height),
+  }));
 };
 
 export default allCoordinatesFromPath;

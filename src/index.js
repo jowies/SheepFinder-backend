@@ -20,23 +20,35 @@ const nicePrintForTest = (result) => {
 
 const toLongitudeLatitude = (geo) => geo.map((g) => ({ latitude: g.lat, longitude: g.lng }));
 
-const postPath = async (coordinates, height) => {
+const round = (p) => p.map((point) => ({
+  ...point,
+  Northing: Math.round(point.Northing),
+  Easting: Math.round(point.Easting),
+}));
+
+const postPath = async (coordinates, height, start) => {
   const utm = geoToCoord(coordinates);
   currentPath.calculated = false;
-  // Request
+  console.log('Incomming request');
   const coveragePath = await axios.post('http://localhost:5000', {
-    path: utm,
-    width: getFov(height).visual.horizontal,
+    path: round(utm),
+    width: Math.round(getFov(height).visual.horizontal),
   }).then((res) => res.data).catch((err) => console.log(err));
   const latlng = toLongitudeLatitude(coordToGeo(coveragePath.path));
-  const calculatedPath = await allCoordinatesFromPath({ path: latlng, precision: 20, maxiumumHeightDifference: 10 });
+  const withStart = [start, ...latlng, start];
+  console.log(withStart);
+  const calculatedPath = await allCoordinatesFromPath({
+    path: withStart, precision: 20, maxiumumHeightDifference: 10, height, start,
+  });
   currentPath.calculated = true;
   currentPath.path = calculatedPath;
 };
 
 router.post('/path', async (ctx) => {
-  const { coordinates, width, height } = ctx.request.body;
-  postPath(coordinates, height || width);
+  const {
+    coordinates, width, height, start,
+  } = ctx.request.body;
+  postPath(coordinates, height || width, start);
   ctx.body = {
     message: 'success',
   };
