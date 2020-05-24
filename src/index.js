@@ -32,7 +32,7 @@ const postPath = async (coordinates, height, start) => {
   console.log('Incomming request');
   const coveragePath = await axios.post('http://localhost:5000', {
     path: round(utm),
-    width: Math.round(getFov(height).visual.horizontal),
+    width: getFov(height).visual.horizontal * 0.90,
   }).then((res) => res.data).catch((err) => console.log(err));
   const latlng = toLongitudeLatitude(coordToGeo(coveragePath.path));
   const withStart = [start, ...latlng, start];
@@ -42,7 +42,7 @@ const postPath = async (coordinates, height, start) => {
   });
   currentPath.calculated = true;
   currentPath.path = calculatedPath;
-  currentPath.length = Math.floor(getFov(height).visual.vertical);
+  currentPath.length = getFov(height).visual.vertical * 0.9;
 };
 
 router.post('/path', async (ctx) => {

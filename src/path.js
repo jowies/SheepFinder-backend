@@ -85,7 +85,7 @@ const allCoordinatesFromPath = async ({
   const homeAltitude = pathWithAltitudes[0].altitude;
   return pathWithAltitudes.map((point) => ({
     ...point,
-    altitude: (point.altitude - homeAltitude + height),
+    altitude: Math.round(point.altitude - homeAltitude + height),
   }));
 };
 
